@@ -1,5 +1,15 @@
 # 30
 
+######
+# Montagsmaler
+
+Ein JavaFX-Projekt, bei dem Benutzer etwas zeichnen und ein neuronales Netzwerk versucht, das Gezeichnete zu erkennen.
+
+## Features
+- Zeichenfläche mit Maus
+- Auswertung durch ein KI-Modell
+- Prozentuale Anzeige der Ähnlichkeit mit Objekten
+######
 
 
 ## Getting started
