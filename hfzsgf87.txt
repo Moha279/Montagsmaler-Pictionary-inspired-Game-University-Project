@@ -1,2 +1,6 @@
+<<<<<<< HEAD
 Jonas
 moeeeeeeeee
+=======
+taeb
+>>>>>>> 29bd22516b73bbb7abe29576dcb67e239d04f20e
