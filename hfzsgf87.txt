@@ -1,2 +1,11 @@
+<<<<<<< HEAD
 jonas
 Dilshod
+=======
+<<<<<<< HEAD
+Jonas
+moeeeeeeeee
+=======
+taeb
+>>>>>>> 29bd22516b73bbb7abe29576dcb67e239d04f20e
+>>>>>>> bfb6bb78d5b2948965db9e3fe815855c4bfebaa2
