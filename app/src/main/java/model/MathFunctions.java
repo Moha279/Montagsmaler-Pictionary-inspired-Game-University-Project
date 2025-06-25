@@ -30,6 +30,21 @@ public interface MathFunctions {
     }
 
     /**
+     * Applies an activation function element-wise to a vector.
+     *
+     * @param vector Input vector.
+     * @return Vector after applying the sigmoid function to each element.
+    */
+    public static double[] applySigmoid(double[] vector) {
+        double[] result = new double[vector.length];
+        for (int i = 0; i < vector.length; i++) {
+            result[i] = sigmoid(vector[i]);
+        }
+        return result;
+    }
+
+
+    /**
      * ReLU activation function.
      *
      * @param x Input value.
@@ -47,6 +62,34 @@ public interface MathFunctions {
      */
     static double reluDerivative(double x) {
         return x > 0 ? 1 : 0;
+    }
+
+    /**
+     * Applies the ReLU function element-wise to a vector.
+     *
+     * @param vector Input vector.
+     * @return Vector after applying ReLU to each element.
+     */
+    public static double[] applyReLU(double[] vector) {
+        double[] result = new double[vector.length];
+        for (int i = 0; i < vector.length; i++) {
+            result[i] = Math.max(0, vector[i]);
+        }
+        return result;
+    }
+
+    /**
+     * Applies the derivative of the ReLU function element-wise to a vector.
+     *
+     * @param vector Input vector.
+     * @return Vector of derivatives.
+     */
+    public static double[] reluDerivative(double[] vector) {
+        double[] result = new double[vector.length];
+        for (int i = 0; i < vector.length; i++) {
+            result[i] = vector[i] > 0 ? 1 : 0;
+        }
+        return result;
     }
 
     /**
@@ -134,20 +177,6 @@ public interface MathFunctions {
         double[] result = new double[a.length];
         for (int i = 0; i < a.length; i++) {
             result[i] = a[i] + b[i];
-        }
-        return result;
-    }
-
-    /**
-     * Applies an activation function element-wise to a vector.
-     *
-     * @param vector Input vector.
-     * @return Vector after applying the sigmoid function to each element.
-    */
-    public static double[] applySigmoid(double[] vector) {
-        double[] result = new double[vector.length];
-        for (int i = 0; i < vector.length; i++) {
-            result[i] = sigmoid(vector[i]);
         }
         return result;
     }
