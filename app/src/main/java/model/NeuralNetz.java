@@ -25,13 +25,13 @@ public class NeuralNetz{
      * @param outputs number of output nodes
      */
     public NeuralNetz(int inputs, int hidden, int outputs) {
-        inputSize = inputs;
-        hiddenSize = hidden;
-        outputSize = outputs;
-        biasHidden = randomVector(hidden);
-        weightsInputHidden = randomMatrix(hiddenSize, inputSize);
-        weightsHiddenOutput = randomMatrix(outputSize, hiddenSize);
-        biasOutput = randomVector(outputSize);
+        this.inputSize = inputs;
+        this.hiddenSize = hidden;
+        this.outputSize = outputs;
+        this.biasHidden = randomVector(hidden);
+        this.weightsInputHidden = randomMatrix(hiddenSize, inputSize);
+        this.weightsHiddenOutput = randomMatrix(outputSize, hiddenSize);
+        this.biasOutput = randomVector(outputSize);
     }
 
     /**

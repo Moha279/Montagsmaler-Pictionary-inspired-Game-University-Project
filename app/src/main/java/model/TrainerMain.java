@@ -1,7 +1,21 @@
 class Trainer{
-    private double learningRate = 0.1;
-
+    private NeutralNetz neutralNetz;
+    private double learningRate;
     
+    private int epochs;
+
+    private double[][] trainingInputs;
+    private double[][] trainingLabels;
+
+    public Trainer(NeuralNetwork network, double learningRate, int epochs,double[][] trainingInputs, double[][] trainingLabels) {
+        this.network = network;
+        this.learningRate = learningRate;
+        this.epochs = epochs;
+        this.trainingInputs = trainingInputs;
+        this.trainingLabels = trainingLabels;
+    }
+
+
     public double[] backP(double[] optimalOutputs){
         double errors = MathFunctions.meanSquaredError(optimalOutputs, outputs);
         double []  slopeOutputLayer = MathFunctions.reluDerivative(outputs);
