@@ -1,6 +1,6 @@
 package model;
 import java.util.*;
-public class NeturalNetz{
+public class NeuronalNetz{
     private double[][] weightsInputHidden;
     private double[] biasHidden;
 
