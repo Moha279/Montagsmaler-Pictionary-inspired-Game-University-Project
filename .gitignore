@@ -1,15 +1,30 @@
-# Ignore Gradle project-specific cache directory
+# -------- Build- und Binärordner --------
+/bin/
+/app/bin/
+/app/build/
+/build/
+
+# -------- Gradle Cache --------
 .gradle/
 
-# Ignore Gradle build output directory
-build/
-/app/build/
-/app/bin/
-/bin/
-
-# VS Code settings folder
+# -------- VS Code Einstellungen --------
 .vscode/
 
-# System files (optional)
+# -------- IDE-spezifisch --------
+.idea/
+
+# -------- Systemdateien --------
 .DS_Store
 Thumbs.db
+
+# -------- Logs --------
+*.log
+
+# -------- Temporäre Dateien --------
+*.tmp
+*.temp
+
+# -------- Sonstiges --------
+*.class
+*.jar
+
