@@ -4,8 +4,8 @@ class Trainer{
     
     private int epochs;
 
-    private double[][] trainingInputs;
-    private double[][] trainingLabels;
+    private double[][] inputData;
+    private double[][] targetData;
 
     public Trainer(NeuralNetwork network, double learningRate, int epochs,double[][] trainingInputs, double[][] trainingLabels) {
         this.network = network;
@@ -30,11 +30,7 @@ class Trainer{
 }
 public class TrainerMain{
     public static void main(String[] args) {
-        NeturalNetz netz = new NeturalNetz(5, 3, 2);
-        double[] inputs = randomVektor(5);
-        double [] output = netz.forwardP(inputs);
-        for(double i : output) System.out.print(i + "  ");
-        System.out.println();
+        
     }
     public static double[] randomVektor(int number){
         Random randm = new Random();
