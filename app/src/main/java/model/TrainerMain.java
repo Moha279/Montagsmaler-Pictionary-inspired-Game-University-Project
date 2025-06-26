@@ -1,5 +1,5 @@
 class Trainer{
-    private NeutralNetz neutralNetz;
+    private NeuralNetwork neuralNetwork;
     private double learningRate;
     
     private int epochs;
@@ -7,8 +7,8 @@ class Trainer{
     private double[][] inputData;
     private double[][] targetData;
 
-    public Trainer(NeuralNetwork neutralNetz, double learningRate, int epochs,double[][] inputData, double[][] targetData) {
-        this.neutralNetz = neutralNetz;
+    public Trainer(NeuralNetwork neuralNetwork, double learningRate, int epochs,double[][] inputData, double[][] targetData) {
+        this.neuralNetwork = neuralNetwork;
         this.learningRate = learningRate;
         this.epochs = epochs;
         this.inputData = inputData;
@@ -17,22 +17,22 @@ class Trainer{
 
 
     public void back(double[] inputs,double[] optimalOutputs){
-        double [] outputs = neutralNetz.feedforward(inputs);
+        double [] outputs = neuralNetwork.feedforward(inputs);
         double [] outputErrors = MathFunctions.meanSquaredError(optimalOutputs, outputs);
-        double[] hiddenOutput = neutralNetz.getHiddenOutput();
+        double[] hiddenOutput = neuralNetwork.getHiddenOutput();
 
         for (int i = 0; i < weightsHiddenOutput.length; i++) {
             for (int j = 0; j < weightsHiddenOutput[i].length; j++) {
                 weightsHiddenOutput[i][j] += learningRate * outputErrors[i] * hiddenOutput[j];
             }
         }
-        neutralNetz.setWeightsHiddenOutput(weightsHiddenOutput);
+        neuralNetwork.setWeightsHiddenOutput(weightsHiddenOutput);
 
-        double[] biasOutput = neutralNetz.getBiasOutput();
+        double[] biasOutput = neuralNetwork.getBiasOutput();
         for (int i = 0; i < biasOutput.length; i++) {
             biasOutput[i] += learningRate * outputErrors[i];
         }
-        neutralNetz.setBiasOutput(biasOutput);
+        neuralNetwork.setBiasOutput(biasOutput);
     }
     
 }
