@@ -9,6 +9,7 @@ public class NeuralNetz{
 
     private double[][] weightsInputHidden;
     private double[] biasHidden;
+    private double[] hiddenOutput;
 
     private double[][] weightsHiddenOutput;
     private double[] biasOutput;
@@ -30,6 +31,7 @@ public class NeuralNetz{
         this.outputSize = outputs;
         this.biasHidden = randomVector(hidden);
         this.weightsInputHidden = randomMatrix(hiddenSize, inputSize);
+        this.hiddenOutput = new double[hidden];
         this.weightsHiddenOutput = randomMatrix(outputSize, hiddenSize);
         this.biasOutput = randomVector(outputSize);
     }
@@ -41,6 +43,14 @@ public class NeuralNetz{
      */
     public void setWeightsInputHidden(double[][] updateWeightsInputHidden) {
         this.weightsInputHidden = updateWeightsInputHidden;
+    }
+
+    /**
+     * gets the weights between input and hidden layer.
+     * @return weigthsInputHidden
+     */
+    public double[][] getWeightsInputHidden(){
+        return this.weightsInputHidden;
     }
 
     /**
@@ -62,6 +72,14 @@ public class NeuralNetz{
     }
 
     /**
+     * gets the Outputs form hidden.
+     * @return hiddenOutput.
+     */
+    public double[] getHiddenOutput(){
+        return this.hiddenOutput;
+    }
+
+    /**
      * sets the biases for the output layer.
      *
      * @param updateBiasOutput new biases to set
@@ -70,6 +88,14 @@ public class NeuralNetz{
         this.biasOutput = updateBiasOutput;
     }
 
+    /**
+     * gets the biases for the output layer.
+     * @return biasOutput
+     */
+    public double[] getBiasOutput(){
+        return this.biasOutput;
+    }
+    
     /**
      * creates a random matrix with values between 0 and 1.
      *
@@ -111,7 +137,7 @@ public class NeuralNetz{
      */
     public double[] forward(double[] inputs) {
         double[] hiddenInput = MathFunctions.add(MathFunctions.multiply(weightsInputHidden, inputs), biasHidden);
-        double[] hiddenOutput = MathFunctions.applyReLU(hiddenInput);
+        hiddenOutput = MathFunctions.applyReLU(hiddenInput);
         double[] finalInput = MathFunctions.add(MathFunctions.multiply(weightsHiddenOutput, hiddenOutput), biasOutput);
         return MathFunctions.softmax(finalInput);
     }

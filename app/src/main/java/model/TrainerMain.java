@@ -7,24 +7,32 @@ class Trainer{
     private double[][] inputData;
     private double[][] targetData;
 
-    public Trainer(NeuralNetwork network, double learningRate, int epochs,double[][] trainingInputs, double[][] trainingLabels) {
-        this.network = network;
+    public Trainer(NeuralNetwork neutralNetz, double learningRate, int epochs,double[][] inputData, double[][] targetData) {
+        this.neutralNetz = neutralNetz;
         this.learningRate = learningRate;
         this.epochs = epochs;
-        this.trainingInputs = trainingInputs;
-        this.trainingLabels = trainingLabels;
+        this.inputData = inputData;
+        this.targetData = targetData;
     }
 
 
-    public double[] backP(double[] optimalOutputs){
-        double errors = MathFunctions.meanSquaredError(optimalOutputs, outputs);
-        double []  slopeOutputLayer = MathFunctions.reluDerivative(outputs);
-         // Calculate Gradient for weightsHiddenOutput
-        for (int i = 0; i < outputSize; i++) {
-            for (int j = 0; j < hiddenSize; j++) {
-                weightsHiddenOutput[i][j] = outputErrors[i] * hiddenOutput[j];
+    public void back(double[] inputs,double[] optimalOutputs){
+        double [] outputs = neutralNetz.feedforward(inputs);
+        double [] outputErrors = MathFunctions.meanSquaredError(optimalOutputs, outputs);
+        double[] hiddenOutput = neutralNetz.getHiddenOutput();
+
+        for (int i = 0; i < weightsHiddenOutput.length; i++) {
+            for (int j = 0; j < weightsHiddenOutput[i].length; j++) {
+                weightsHiddenOutput[i][j] += learningRate * outputErrors[i] * hiddenOutput[j];
             }
         }
+        neutralNetz.setWeightsHiddenOutput(weightsHiddenOutput);
+
+        double[] biasOutput = neutralNetz.getBiasOutput();
+        for (int i = 0; i < biasOutput.length; i++) {
+            biasOutput[i] += learningRate * outputErrors[i];
+        }
+        neutralNetz.setBiasOutput(biasOutput);
     }
     
 }
