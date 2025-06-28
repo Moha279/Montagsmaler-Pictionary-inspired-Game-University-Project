@@ -140,6 +140,26 @@ public interface MathFunctions {
         }
         return sum / yTrue.length;
     }
+
+    /**
+     * Calculates the Mean Squared Error (MSE) between predicted and true values.
+     *
+     * @param yTrue Array of true labels.
+     * @param yPred Array of predicted labels.
+     * @return Mean Squared ErrorVector.
+     * @throws IllegalArgumentException if arrays have different lengths.
+     */
+    public static double[] meanSquaredErrorVector(double[] yTrue, double[] yPred) {
+        if (yTrue.length != yPred.length) {
+            throw new IllegalArgumentException("Arrays must have the same length.");
+        }
+        double[] sum = new double[yPred.length];
+        for (int i = 0; i < yTrue.length; i++) {
+            sum [i] = Math.pow(yTrue[i] - yPred[i], 2);
+        }
+        return sum;
+    }
+
     /**
      * Multiplies a matrix by a vector.
      *

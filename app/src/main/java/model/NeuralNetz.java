@@ -63,6 +63,23 @@ public class NeuralNetz{
     }
 
     /**
+     * gets the biases for the hidden layer.
+     *
+     * @return BiasHidden.
+     */
+    public double[] getBiasHidden(){
+        return this.biasHidden;
+    }
+
+    /**
+     * gets the Outputs form hidden.
+     * @return hiddenOutput.
+     */
+    public double[] getHiddenOutput(){
+        return this.hiddenOutput;
+    }
+
+    /**
      * sets the weights between hidden and output layer.
      *
      * @param updateWeightsHiddenOutput new weights to set
@@ -72,11 +89,13 @@ public class NeuralNetz{
     }
 
     /**
-     * gets the Outputs form hidden.
-     * @return hiddenOutput.
+     * gets the weights between hidden and output layer.
+     *
+     * @return WeightsHiddenOutput
      */
-    public double[] getHiddenOutput(){
-        return this.hiddenOutput;
+
+    public double[][] getWeightsHiddenOutput(){
+        return this.weightsHiddenOutput;
     }
 
     /**
@@ -136,6 +155,7 @@ public class NeuralNetz{
      * @return output vector after softmax
      */
     public double[] forward(double[] inputs) {
+        
         double[] hiddenInput = MathFunctions.add(MathFunctions.multiply(weightsInputHidden, inputs), biasHidden);
         hiddenOutput = MathFunctions.applyReLU(hiddenInput);
         double[] finalInput = MathFunctions.add(MathFunctions.multiply(weightsHiddenOutput, hiddenOutput), biasOutput);
