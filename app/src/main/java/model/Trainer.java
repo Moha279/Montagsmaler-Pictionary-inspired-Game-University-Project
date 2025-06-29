@@ -47,7 +47,7 @@ public class Trainer {
                 double[] optimalOutputs = targetData[dataIndex];
 
                 double[] outputs = neuralNetz.forward(inputs);
-                double[] outputErrors = MathFunctions.meanSquaredErrorVector(optimalOutputs, outputs);
+                double[] outputErrors = MathFunctions.errorVector(optimalOutputs, outputs);
                 double currentError = model.MathFunctions.meanSquaredError(optimalOutputs, outputs);
 
                 double[][] weightsHiddenOutput = neuralNetz.getWeightsHiddenOutput();
@@ -56,6 +56,9 @@ public class Trainer {
                 double[][] weightsInputHidden = neuralNetz.getWeightsInputHidden();
                 double[] biasHidden = neuralNetz.getBiasHidden();
 
+                if (epoch % 100 == 0) {
+                    System.out.println("Epoch: " + epoch + " Current Error: " + currentError);
+                }
 
                 if (currentError < bestError) {
                     bestError = currentError;
@@ -103,7 +106,7 @@ public class Trainer {
 
                 // Update biases for output layer
                 for (int i = 0; i < biasOutput.length; i++) {
-                    biasOutput[i] += learningRate * outputErrors[i];
+                    biasOutput[i] += learningRate * deltaOutputs[i];
                 }
                 neuralNetz.setBiasOutput(biasOutput);
 

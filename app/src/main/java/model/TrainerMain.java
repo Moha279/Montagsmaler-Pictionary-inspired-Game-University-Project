@@ -2,10 +2,11 @@ package model;
 import java.util.*;
 
 import model.Trainer;
+
 public class TrainerMain{
     public static void main(String[] args) {
         double[][] inputs = randomMatrix(3,3);
-        double[][] outputs = randomMatrix(2, 2);
+        double[][] outputs = randomMatrix(3, 2);
         NeuralNetz neuralNetz = new NeuralNetz(3,2, 2);
         Trainer trainer = new Trainer(neuralNetz,0.1, 10, inputs, outputs);
         trainer.train();
