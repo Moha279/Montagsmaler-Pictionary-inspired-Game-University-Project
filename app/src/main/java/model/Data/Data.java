@@ -114,6 +114,32 @@ public class Data {
         }
         return Double.MAX_VALUE; // fallback if file is empty or error occurs
     }
+     /**
+     * Loads a matrix (2D double array) from a text file.
+     * Each line in the file represents one row of the matrix,
+     * with elements separated by commas.
+     *
+     * @param filename the path to the file
+     * @return a 2D double array with the matrix data
+     * @throws IOException if file reading fails
+     */
+    public static double[][] loadMatrix(String filename) throws IOException {
+        List<double[]> rows = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                double[] row = new double[parts.length];
+                for (int i = 0; i < parts.length; i++) {
+                    row[i] = Double.parseDouble(parts[i].trim());
+                }
+                rows.add(row);
+            }
+        }
+
+        double[][] matrix = new double[rows.size()][];
+        return rows.toArray(matrix);
+    }
 
 
 }
