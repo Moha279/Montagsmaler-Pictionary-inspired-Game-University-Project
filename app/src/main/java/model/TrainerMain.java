@@ -1,16 +1,17 @@
 package model;
 import java.util.*;
 
+import model.MathFunctions;
 import model.NeuralNetz;
 import model.Trainer;
 import model.Data.*;
 
 public class TrainerMain{
     public static void main(String[] args) {
-        double[][] inputs = Data.loadMatrix("model\\Data\\M\\quickdraw_project\\input_vectors\\eyeglasses_input.json");
+        double[][] inputs = Data.loadMatrix("model\\Data\\M\\quickdraw_project\\converted_vectors\\eyeglasses_vector_28.json");
         double[][] outputs = inistalier(1000, 2);
         NeuralNetz neuralNetz = new NeuralNetz(inputs[0].length,2, 2);
-        Trainer trainer = new Trainer(neuralNetz,0.1, 10000, inputs, outputs);
+        Trainer trainer = new Trainer(neuralNetz,0.1, 1000, inputs, outputs);
         trainer.train();
     }
     public static double[][] inistalier(int size1, int size2) {

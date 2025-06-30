@@ -58,7 +58,7 @@ public class Trainer {
                 double[][] weightsInputHidden = neuralNetz.getWeightsInputHidden();
                 double[] biasHidden = neuralNetz.getBiasHidden();
 
-                if (epoch % 1000 == 0) {
+                if (epoch % 100 == 0) {
                     System.out.println("Epoch: " + epoch + " Current Error: " + currentError);
                     System.out.println("Outputs at Epoch  " + epoch + " [" + outputs[0] +", "+ outputs[1] + "]");
                 }

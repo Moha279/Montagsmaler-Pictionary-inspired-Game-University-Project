@@ -170,30 +170,50 @@ public class Data {
             Gson gson = new Gson();
             BufferedReader br = new BufferedReader(new FileReader(filePath));
 
-            Type listType = new TypeToken<List<List<Double>>>() {}.getType();
-            List<List<Double>> dataList = gson.fromJson(br, listType);
-
-            int maxLength = 0;
-            for (List<Double> row : dataList) {
-                if (row.size() > maxLength) {
-                    maxLength = row.size();
-                }
-            }
-            double[][] matrix = new double[dataList.size()][maxLength];
-
-            for (int i = 0; i < dataList.size(); i++) {
-                List<Double> row = dataList.get(i);
-                for (int j = 0; j < row.size(); j++) {
-                    matrix[i][j] = row.get(j);
-                }
+            // Versuche zuerst, eine Liste von Matrizen zu laden (3D-Liste)
+            Type listOfMatricesType = new TypeToken<List<List<List<Double>>>>() {}.getType();
+            List<List<List<Double>>> data = null;
+            try {
+                data = gson.fromJson(br, listOfMatricesType);
+            } catch (Exception e) {
+                // Falls das nicht klappt, versuchen wir die Datei neu zu lesen als einzelne Matrix
+                br.close();
+                br = new BufferedReader(new FileReader(filePath));
             }
 
-            System.out.println("File successfully loaded: " + filePath);
-            return matrix;
+            if (data != null && !data.isEmpty()) {
+                // Lade die erste Matrix aus der Liste
+                List<List<Double>> firstMatrixList = data.get(0);
+                return convertListToMatrix(firstMatrixList);
+            } else {
+                // Wenn nicht 3D-Array, dann 2D-Array laden
+                Type matrixType = new TypeToken<List<List<Double>>>() {}.getType();
+                List<List<Double>> matrixList = gson.fromJson(br, matrixType);
+                return convertListToMatrix(matrixList);
+            }
+
         } catch (IOException e) {
-            System.out.println("Error loading file: " + filePath);
+            System.out.println("Fehler beim Laden der Datei: " + filePath);
             e.printStackTrace();
             return null;
         }
     }
+
+
+    private static double[][] convertListToMatrix(List<List<Double>> list) {
+        int rows = list.size();
+        int cols = list.get(0).size();
+        double[][] matrix = new double[rows][cols];
+
+        for (int i = 0; i < rows; i++) {
+            List<Double> row = list.get(i);
+            for (int j = 0; j < cols; j++) {
+                matrix[i][j] = row.get(j);
+            }
+        }
+        return matrix;
+    }
+
+
+
 }
