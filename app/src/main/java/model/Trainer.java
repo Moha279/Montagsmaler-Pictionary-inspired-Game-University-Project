@@ -1,5 +1,7 @@
 package model;
 
+import java.util.*;
+
 import model.Data.*;
 
 /**
@@ -64,11 +66,11 @@ public class Trainer {
                 if (currentError < bestError) {
                     bestError = currentError;
                    
-                    Data.saveToFile(neuralNetz.getWeightsInputHidden(), "model/Data/M/weightsInputHidden.txt");
-                    Data.saveToFile(neuralNetz.getWeightsHiddenOutput(), "model/Data/M/weightsHiddenOutput.txt");
-                    Data.saveToFile(neuralNetz.getBiasHidden(), "model/Data/M/biasHidden.txt");
-                    Data.saveToFile(neuralNetz.getBiasOutput(), "model/Data/M/biasOutput.txt");
-                    Data.saveBestError(bestError,"model/Data/M/BestError.txt");
+                    Data.saveToFile(neuralNetz.getWeightsInputHidden(), "model/Data/M/apple/weightsInputHidden.txt");
+                    Data.saveToFile(neuralNetz.getWeightsHiddenOutput(), "model/Data/M/apple/weightsHiddenOutput.txt");
+                    Data.saveToFile(neuralNetz.getBiasHidden(), "model/Data/M/apple/biasHidden.txt");
+                    Data.saveToFile(neuralNetz.getBiasOutput(), "model/Data/M/apple/biasOutput.txt");
+                    Data.saveBestError(bestError,"model/Data/M/apple/BestError.txt");
 
                     System.out.println("New best model saved with error: " + bestError);
                 }
@@ -91,7 +93,7 @@ public class Trainer {
                 // Update weights between input and hidden layer
                 for (int i = 0; i < weightsInputHidden.length; i++) {
                     for (int j = 0; j < inputs.length; j++) {
-                        weightsInputHidden[i][j] += learningRate * deltaHidden[i] * inputs[j];
+                        weightsInputHidden[i][j] -= learningRate * deltaHidden[i] * inputs[j];
                     }
                 }
                 neuralNetz.setWeightsInputHidden(weightsInputHidden);
@@ -107,13 +109,13 @@ public class Trainer {
 
                 // Update biases for output layer
                 for (int i = 0; i < biasOutput.length; i++) {
-                    biasOutput[i] += learningRate * deltaOutputs[i];
+                    biasOutput[i] -= learningRate * deltaOutputs[i];
                 }
                 neuralNetz.setBiasOutput(biasOutput);
 
                 // Update biases for hidden layer
                 for (int i = 0; i < biasHidden.length; i++) {
-                    biasHidden[i] += learningRate * deltaHidden[i];
+                    biasHidden[i] -= learningRate * deltaHidden[i];
                 }
                 neuralNetz.setBiasHidden(biasHidden);
             }

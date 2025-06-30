@@ -23,7 +23,7 @@ def main():
     categories = ['apple', 'star', 'candle', 'fork', 'eyeglasses']
     input_dir = 'data'
     output_dir = 'samples'
-    sample_size = 100
+    sample_size = 1000
 
     os.makedirs(output_dir, exist_ok=True)
 

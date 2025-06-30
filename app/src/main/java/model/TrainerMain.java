@@ -10,7 +10,7 @@ public class TrainerMain{
         double[][] inputs = Data.loadMatrix("model\\Data\\M\\quickdraw_project\\input_vectors\\apple_input.json");
         double[][] outputs = inistalier(100, 2);
         NeuralNetz neuralNetz = new NeuralNetz(inputs[0].length,2, 2);
-        Trainer trainer = new Trainer(neuralNetz,0.1, 1000, inputs, outputs);
+        Trainer trainer = new Trainer(neuralNetz,0.1, 10000, inputs, outputs);
         trainer.train();
     }
     public static double[][] inistalier(int size1, int size2) {
