@@ -1,5 +1,6 @@
 import json
 import os
+import random
 
 def drawing_to_flat_vector(drawing):
     """
@@ -26,8 +27,18 @@ def convert_and_save_per_category(input_dir, output_dir, categories, sample_size
             with open(input_file, "r", encoding="utf-8") as f:
                 lines = f.readlines()
 
+            if len(lines) == 0:
+                print(f"Keine Daten in {input_file}")
+                continue
+
+            # Mische die Zeilen zufällig
+            random.shuffle(lines)
+
+            # Begrenze die Anzahl der Vektoren
+            actual_sample_size = min(sample_size, len(lines))
+
             vectors = []
-            for line in lines[:sample_size]:
+            for line in lines[:actual_sample_size]:
                 data = json.loads(line)
                 flat_vector = drawing_to_flat_vector(data["drawing"])
                 vectors.append(flat_vector)
@@ -42,7 +53,7 @@ def convert_and_save_per_category(input_dir, output_dir, categories, sample_size
 
 if __name__ == "__main__":
     categories = ['apple', 'star', 'candle', 'fork', 'eyeglasses']
-    input_directory = "samples"         # enthält *_sample.ndjson
-    output_directory = "input_vectors"  # hierhin schreiben wir die JSON-Dateien
+    input_directory = "samples"         # Hier sind die _sample.ndjson Dateien
+    output_directory = "input_vectors"  # Zielordner für die JSON-Dateien
 
-    convert_and_save_per_category(input_directory, output_directory, categories)
+    convert_and_save_per_category(input_directory, output_directory, categories, sample_size=1000)
