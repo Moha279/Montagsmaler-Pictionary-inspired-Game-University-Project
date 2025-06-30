@@ -66,11 +66,11 @@ public class Trainer {
                 if (currentError < bestError) {
                     bestError = currentError;
                    
-                    Data.saveToFile(neuralNetz.getWeightsInputHidden(), "model/Data/M/apple/weightsInputHidden.txt");
-                    Data.saveToFile(neuralNetz.getWeightsHiddenOutput(), "model/Data/M/apple/weightsHiddenOutput.txt");
-                    Data.saveToFile(neuralNetz.getBiasHidden(), "model/Data/M/apple/biasHidden.txt");
-                    Data.saveToFile(neuralNetz.getBiasOutput(), "model/Data/M/apple/biasOutput.txt");
-                    Data.saveBestError(bestError,"model/Data/M/apple/BestError.txt");
+                    Data.saveToFile(neuralNetz.getWeightsInputHidden(), "model/Data/M/eyeglasses/weightsInputHidden.txt");
+                    Data.saveToFile(neuralNetz.getWeightsHiddenOutput(), "model/Data/M/eyeglasses/weightsHiddenOutput.txt");
+                    Data.saveToFile(neuralNetz.getBiasHidden(), "model/Data/M/eyeglasses/biasHidden.txt");
+                    Data.saveToFile(neuralNetz.getBiasOutput(), "model/Data/M/eyeglasses/biasOutput.txt");
+                    Data.saveBestError(bestError,"model/Data/M/eyeglasses/BestError.txt");
 
                     System.out.println("New best model saved with error: " + bestError);
                 }

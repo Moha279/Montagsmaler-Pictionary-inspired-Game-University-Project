@@ -7,8 +7,8 @@ import model.Data.*;
 
 public class TrainerMain{
     public static void main(String[] args) {
-        double[][] inputs = Data.loadMatrix("model\\Data\\M\\quickdraw_project\\input_vectors\\apple_input.json");
-        double[][] outputs = inistalier(100, 2);
+        double[][] inputs = Data.loadMatrix("model\\Data\\M\\quickdraw_project\\input_vectors\\eyeglasses_input.json");
+        double[][] outputs = inistalier(1000, 2);
         NeuralNetz neuralNetz = new NeuralNetz(inputs[0].length,2, 2);
         Trainer trainer = new Trainer(neuralNetz,0.1, 10000, inputs, outputs);
         trainer.train();
