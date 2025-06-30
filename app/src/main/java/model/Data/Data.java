@@ -2,6 +2,10 @@ package model.Data;
 
 import java.io.*;
 import java.util.*;
+// import com.google.gson.Gson;
+// import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
 
 public class Data {
 
@@ -121,25 +125,28 @@ public class Data {
      *
      * @param filename the path to the file
      * @return a 2D double array with the matrix data
-     * @throws IOException if file reading fails
      */
-    public static double[][] loadMatrix(String filename) throws IOException {
-        List<double[]> rows = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
-                double[] row = new double[parts.length];
-                for (int i = 0; i < parts.length; i++) {
-                    row[i] = Double.parseDouble(parts[i].trim());
-                }
-                rows.add(row);
-            }
-        }
+    // public static double[][] loadJsonMatrix(String filePath) {
+    //     Gson gson = new Gson();
+    //     try (FileReader reader = new FileReader(filePath)) {
+    //         Type listOfListType = new TypeToken<List<List<Double>>>(){}.getType();
+    //         List<List<Double>> list = gson.fromJson(reader, listOfListType);
 
-        double[][] matrix = new double[rows.size()][];
-        return rows.toArray(matrix);
-    }
+    //         double[][] matrix = new double[list.size()][];
+    //         for (int i = 0; i < list.size(); i++) {
+    //             List<Double> row = list.get(i);
+    //             matrix[i] = new double[row.size()];
+    //             for (int j = 0; j < row.size(); j++) {
+    //                 matrix[i][j] = row.get(j);
+    //             }
+    //         }
+    //         return matrix;
+    //     } catch (IOException e) {
+    //         System.out.println("Fehler beim Laden der JSON-Datei: " + filePath);
+    //         e.printStackTrace();
+    //         return null;
+    //     }
+    // }
 
 
 }
