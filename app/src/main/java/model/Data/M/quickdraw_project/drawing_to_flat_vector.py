@@ -21,7 +21,7 @@ def convert_and_save_per_category(input_dir, output_dir, categories, sample_size
         input_file = os.path.join(input_dir, f"{category}_sample.ndjson")
         output_file = os.path.join(output_dir, f"{category}_input.json")
 
-        print(f"📂 Lese: {input_file}")
+        print(f"Lese: {input_file}")
         try:
             with open(input_file, "r", encoding="utf-8") as f:
                 lines = f.readlines()
@@ -35,10 +35,10 @@ def convert_and_save_per_category(input_dir, output_dir, categories, sample_size
             with open(output_file, "w", encoding="utf-8") as out:
                 json.dump(vectors, out)
 
-            print(f"✅ Gespeichert: {output_file} ({len(vectors)} Vektoren)")
+            print(f"Gespeichert: {output_file} ({len(vectors)} Vektoren)")
 
         except Exception as e:
-            print(f"❌ Fehler bei {category}: {e}")
+            print(f"Fehler bei {category}: {e}")
 
 if __name__ == "__main__":
     categories = ['apple', 'star', 'candle', 'fork', 'eyeglasses']

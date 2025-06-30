@@ -2,13 +2,24 @@ package model.Data;
 
 import java.io.*;
 import java.util.*;
-// import com.google.gson.Gson;
-// import com.google.gson.reflect.TypeToken;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 
+/**
+ * A utility class for handling data persistence operations including saving and loading
+ * matrices and vectors to/from files, creating backups, and managing best error values.
+ */
 public class Data {
 
+    /**
+     * Saves a 2D matrix to a text file.
+     * Each row of the matrix is written as a line in the file, with values separated by spaces.
+     *
+     * @param matrix the 2D double array to be saved
+     * @param filename the path of the file to save to
+     */
     public static void saveToFile(double[][] matrix, String filename) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
             for (double[] row : matrix) {
@@ -22,6 +33,13 @@ public class Data {
         }
     }
 
+    /**
+     * Saves a vector (1D array) to a text file.
+     * All values are written on a single line, separated by spaces.
+     *
+     * @param vector the double array to be saved
+     * @param filename the path of the file to save to
+     */
     public static void saveToFile(double[] vector, String filename) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
             for (double value : vector) {
@@ -33,6 +51,15 @@ public class Data {
         }
     }
 
+    /**
+     * Loads a matrix from a text file with specified dimensions.
+     * The file should contain values separated by whitespace.
+     *
+     * @param filename the path of the file to load from
+     * @param rows the number of rows in the matrix
+     * @param cols the number of columns in the matrix
+     * @return the loaded 2D double array, or a zero matrix if loading fails
+     */
     public static double[][] loadMatrixFromFile(String filename, int rows, int cols) {
         double[][] matrix = new double[rows][cols];
         try (Scanner scanner = new Scanner(new File(filename))) {
@@ -49,6 +76,14 @@ public class Data {
         return matrix;
     }
 
+    /**
+     * Loads a vector from a text file with specified size.
+     * The file should contain values separated by whitespace on a single line.
+     *
+     * @param filename the path of the file to load from
+     * @param size the expected size of the vector
+     * @return the loaded double array, or a zero array if loading fails
+     */
     public static double[] loadVectorFromFile(String filename, int size) {
         double[] vector = new double[size];
         try (Scanner scanner = new Scanner(new File(filename))) {
@@ -63,6 +98,12 @@ public class Data {
         return vector;
     }
 
+    /**
+     * Creates a backup copy of a file.
+     *
+     * @param original the path of the source file to be backed up
+     * @param backup the path where the backup should be created
+     */
     public static void backupFile(String original, String backup) {
         try (InputStream in = new FileInputStream(original);
              OutputStream out = new FileOutputStream(backup)) {
@@ -79,11 +120,10 @@ public class Data {
 
     /**
      * Saves the best error found so far to a file.
-     * The method reads the currently saved best error from the file (if it exists)
-     * and only overwrites it if the new error is smaller (i.e., the model has improved).
+     * The method overwrites any existing value in the file with the new error value.
      *
-     * @param currentError The current average error from the training step.
-     * @param filePath The file path where the best error is stored.
+     * @param currentError the current error value to be saved
+     * @param filePath the path of the file where the error should be stored
      */
     public static void saveBestError(double currentError, String filePath) {
         try {
@@ -91,23 +131,22 @@ public class Data {
             writer.write(Double.toString(currentError));
             writer.close();
             System.out.println("New best error saved: " + currentError);
-            
-
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
+
     /**
-     * Loads the best error value saved in the specified file.
-     * If the file does not exist or is empty, returns Double.MAX_VALUE as default.
+     * Loads the best error value from a file.
+     * If the file doesn't exist or is empty, returns Double.MAX_VALUE.
      *
-     * @param filePath The path to the file where the best error is stored.
-     * @return The best error loaded from the file, or Double.MAX_VALUE if no file exists.
+     * @param filePath the path of the file containing the saved error
+     * @return the loaded error value, or Double.MAX_VALUE if no value is available
      */
     public static double loadBestError(String filePath) {
         File file = new File(filePath);
         if (!file.exists()) {
-            return Double.MAX_VALUE; // no saved error yet
+            return Double.MAX_VALUE;
         }
         try (Scanner scanner = new Scanner(file)) {
             if (scanner.hasNextDouble()) {
@@ -116,37 +155,45 @@ public class Data {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return Double.MAX_VALUE; // fallback if file is empty or error occurs
+        return Double.MAX_VALUE;
     }
-     /**
-     * Loads a matrix (2D double array) from a text file.
-     * Each line in the file represents one row of the matrix,
-     * with elements separated by commas.
+
+    /**
+     * Loads a matrix from a JSON-formatted text file.
+     * The file should contain a JSON array of arrays representing the matrix rows.
      *
-     * @param filename the path to the file
-     * @return a 2D double array with the matrix data
+     * @param filePath the path of the JSON file to load
+     * @return the loaded 2D double array, or null if loading fails
      */
-    // public static double[][] loadJsonMatrix(String filePath) {
-    //     Gson gson = new Gson();
-    //     try (FileReader reader = new FileReader(filePath)) {
-    //         Type listOfListType = new TypeToken<List<List<Double>>>(){}.getType();
-    //         List<List<Double>> list = gson.fromJson(reader, listOfListType);
+    public static double[][] loadMatrix(String filePath) {
+        try {
+            Gson gson = new Gson();
+            BufferedReader br = new BufferedReader(new FileReader(filePath));
 
-    //         double[][] matrix = new double[list.size()][];
-    //         for (int i = 0; i < list.size(); i++) {
-    //             List<Double> row = list.get(i);
-    //             matrix[i] = new double[row.size()];
-    //             for (int j = 0; j < row.size(); j++) {
-    //                 matrix[i][j] = row.get(j);
-    //             }
-    //         }
-    //         return matrix;
-    //     } catch (IOException e) {
-    //         System.out.println("Fehler beim Laden der JSON-Datei: " + filePath);
-    //         e.printStackTrace();
-    //         return null;
-    //     }
-    // }
+            Type listType = new TypeToken<List<List<Double>>>() {}.getType();
+            List<List<Double>> dataList = gson.fromJson(br, listType);
 
+            int maxLength = 0;
+            for (List<Double> row : dataList) {
+                if (row.size() > maxLength) {
+                    maxLength = row.size();
+                }
+            }
+            double[][] matrix = new double[dataList.size()][maxLength];
 
+            for (int i = 0; i < dataList.size(); i++) {
+                List<Double> row = dataList.get(i);
+                for (int j = 0; j < row.size(); j++) {
+                    matrix[i][j] = row.get(j);
+                }
+            }
+
+            System.out.println("File successfully loaded: " + filePath);
+            return matrix;
+        } catch (IOException e) {
+            System.out.println("Error loading file: " + filePath);
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

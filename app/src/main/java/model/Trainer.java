@@ -58,16 +58,17 @@ public class Trainer {
 
                 if (epoch % 100 == 0) {
                     System.out.println("Epoch: " + epoch + " Current Error: " + currentError);
+                    System.out.println("Outputs at Epoch  " + epoch + " [" + outputs[0] +", "+ outputs[1] + "]");
                 }
 
                 if (currentError < bestError) {
                     bestError = currentError;
                    
-                    Data.saveToFile(neuralNetz.getWeightsInputHidden(), "Data/M/weightsInputHidden.txt");
-                    Data.saveToFile(neuralNetz.getWeightsHiddenOutput(), "Data/M/weightsHiddenOutput.txt");
-                    Data.saveToFile(neuralNetz.getBiasHidden(), "Data/M/biasHidden.txt");
-                    Data.saveToFile(neuralNetz.getBiasOutput(), "Data/M/biasOutput.txt");
-                    Data.saveBestError(bestError,"Data/M/BestError");
+                    Data.saveToFile(neuralNetz.getWeightsInputHidden(), "model/Data/M/weightsInputHidden.txt");
+                    Data.saveToFile(neuralNetz.getWeightsHiddenOutput(), "model/Data/M/weightsHiddenOutput.txt");
+                    Data.saveToFile(neuralNetz.getBiasHidden(), "model/Data/M/biasHidden.txt");
+                    Data.saveToFile(neuralNetz.getBiasOutput(), "model/Data/M/biasOutput.txt");
+                    Data.saveBestError(bestError,"model/Data/M/BestError.txt");
 
                     System.out.println("New best model saved with error: " + bestError);
                 }
