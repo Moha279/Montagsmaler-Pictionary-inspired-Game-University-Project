@@ -23,4 +23,24 @@ public class GameController {
 
         ExampleView.showRawProbabilities(rounded);
     }
+
+    /**
+     * Flattens a 2D matrix (28x28) into a 1D vector (784).
+     *
+     * @param matrix 2D double array (28x28)
+     * @return 1D double array (flattened)
+     */
+    public static double[] flatten(double[][] matrix) {
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+        double[] flat = new double[rows * cols];
+
+        int index = 0;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                flat[index++] = matrix[i][j];
+            }
+        }
+        return flat;
+    }
 }
