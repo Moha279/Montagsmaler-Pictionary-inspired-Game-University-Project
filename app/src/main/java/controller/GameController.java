@@ -1,34 +1,29 @@
 package controller;
 
 import model.NeuralNetz;
-import view.ExampleView;
 
 public class GameController {
 
+    static NeuralNetz model = new NeuralNetz(784, 10, 5);
+
     /**
-     * Rounds each double value in the input array to two decimal places
-     * and forwards the result to the GUI.
-     *
-     * @param rawOutput An array of 5 double values from the model.
+     * Converts 28x28 int matrix (0/1 pixels) to double[] input for model,
+     * then classifies and forwards rounded results to GUI.
+     * 
+     * @param pixelMatrix 28x28 int matrix with pixel data (0 or 1)
      */
-    public void forwardRoundedResults(double[] rawOutput) {
-        if (rawOutput == null || rawOutput.length != 5) {
-            return;
+    public static double[] classifyFromPixelMatrix(double[][] pixelMatrix) {        double[] input = flatten(pixelMatrix);
+        for (int i = 0; i < rawOutput.length; i++) {
+            roundedOutput[i] = Math.round(rawOutput[i] * 100.0) / 100.0;
         }
-
-        double[] rounded = new double[5];
-        for (int i = 0; i < 5; i++) {
-            rounded[i] = Math.round(rawOutput[i] * 100.0) / 100.0;
-        }
-
-        ExampleView.showRawProbabilities(rounded);
+        return roundedOutput;
     }
 
     /**
-     * Flattens a 2D matrix (28x28) into a 1D vector (784).
-     *
-     * @param matrix 2D double array (28x28)
-     * @return 1D double array (flattened)
+     * Helper method to flatten 28x28 int matrix into 1D double array (784)
+     * 
+     * @param matrix 28x28 int matrix
+     * @return flattened double array
      */
     public static double[] flatten(double[][] matrix) {
         int rows = matrix.length;
