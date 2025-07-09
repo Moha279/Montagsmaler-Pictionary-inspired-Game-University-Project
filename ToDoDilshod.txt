@@ -1,0 +1,37 @@
+Woche 1: Git & GUI-Grundlagen
+
+
+Git installieren
+Repository initialisieren (git init)
+Wichtige Befehle üben: add, commit, status, log, checkout
+
+GUI-Grundlagen mit Swing verstehen
+Erstes einfaches GUI bauen.Fenster mit Button anzeigen
+
+Projektstruktur anlegen:
+Packages: view, controller, app…
+
+
+
+Woche 2: Zeichenpanel & Diagrammpanel & TEST CLEAR knopfen
+
+
+ZeichenPanel erstellen (view.ZeichenPanel):
+Weiße Fläche, auf der mit Maus gezeichnet werden und als Array weitergeben kann
+
+DiagrammPanel bauen (view.DiagramPanel):
+Fünf Balken anzeigen. und unter die Prozenten zeigen.
+
+TEST & CLEAR:
+Test gibt die Array weiter zu Controller. Clear löscht alles was in ZeichenPanel gezeichnet ist und setzt die diagrammwerte auf null.
+
+
+
+Woche 3: Optimierung und Design
+
+
+RoundButton classe erstellen damit die TEST & CLEAR besser aussehen.
+
+Farbkontraste optimieren: z. B. dunkler Text auf hellen Buttons, helle Schrift auf dunklen Balken. 
+
+Saubere Architektur & bessere Klassentrennung.
