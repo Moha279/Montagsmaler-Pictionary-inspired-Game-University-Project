@@ -1,15 +1,17 @@
 package model;
 
 import java.util.*;
+import model.Data.*;
 
 /**
- * this class represents a  feedforward neural network.
+ * This class represents a simple feedforward neural network with one hidden layer.
  */
-public class NeuralNetz{
+public class NeuralNetz {
 
     private double[][] weightsInputHidden;
     private double[] biasHidden;
     private double[] hiddenOutput;
+    private double[] hiddenInput;
 
     private double[][] weightsHiddenOutput;
     private double[] biasOutput;
@@ -19,147 +21,129 @@ public class NeuralNetz{
     private int outputSize;
 
     /**
-     * constructor to initialize the neural network with random weights and biases.
+     * Constructor that initializes the network by loading weights and biases from files.
      *
-     * @param inputs  number of input nodes
-     * @param hidden  number of hidden nodes
-     * @param outputs number of output nodes
+     * @param inputs     number of input nodes
+     * @param hidden     number of hidden nodes
+     * @param outputs    number of output nodes
+     * @param category   the category name to locate the correct model files
      */
-    public NeuralNetz(int inputs, int hidden, int outputs) {
+    public NeuralNetz(int inputs, int hidden, int outputs, String category) {
         this.inputSize = inputs;
         this.hiddenSize = hidden;
         this.outputSize = outputs;
-        this.biasHidden = randomVector(hidden);
-        this.weightsInputHidden = randomMatrix(hiddenSize, inputSize);
+        this.biasHidden = Data.loadVectorFromFile("model/Data/" + category + "/biasHidden.txt", hidden);
+        this.weightsInputHidden = Data.loadMatrixFromFile("model/Data/" + category + "/weightsInputHidden.txt", hidden, inputs);
         this.hiddenOutput = new double[hidden];
-        this.weightsHiddenOutput = randomMatrix(outputSize, hiddenSize);
-        this.biasOutput = randomVector(outputSize);
+        this.weightsHiddenOutput = Data.loadMatrixFromFile("model/Data/" + category + "/weightsHiddenOutput.txt", outputs, hidden);
+        this.biasOutput = Data.loadVectorFromFile("model/Data/" + category + "/biasOutput.txt", outputs);
     }
 
     /**
-     * sets the weights between input and hidden layer.
-     *
-     * @param updateWeightsInputHidden new weights to set
+     * Sets the weights between input and hidden layer.
      */
     public void setWeightsInputHidden(double[][] updateWeightsInputHidden) {
         this.weightsInputHidden = updateWeightsInputHidden;
     }
 
     /**
-     * gets the weights between input and hidden layer.
-     * @return weigthsInputHidden
+     * Returns the weights between input and hidden layer.
      */
-    public double[][] getWeightsInputHidden(){
+    public double[][] getWeightsInputHidden() {
         return this.weightsInputHidden;
     }
 
     /**
-     * sets the biases for the hidden layer.
-     *
-     * @param updateBiasHidden new biases to set
+     * Sets the biases for the hidden layer.
      */
     public void setBiasHidden(double[] updateBiasHidden) {
         this.biasHidden = updateBiasHidden;
     }
 
     /**
-     * gets the biases for the hidden layer.
-     *
-     * @return BiasHidden.
+     * Returns the biases for the hidden layer.
      */
-    public double[] getBiasHidden(){
+    public double[] getBiasHidden() {
         return this.biasHidden;
     }
 
     /**
-     * gets the Outputs form hidden.
-     * @return hiddenOutput.
+     * Returns the output values from the hidden layer.
      */
-    public double[] getHiddenOutput(){
+    public double[] getHiddenOutput() {
         return this.hiddenOutput;
     }
 
     /**
-     * sets the weights between hidden and output layer.
-     *
-     * @param updateWeightsHiddenOutput new weights to set
+     * Sets the weights between hidden and output layer.
      */
     public void setWeightsHiddenOutput(double[][] updateWeightsHiddenOutput) {
         this.weightsHiddenOutput = updateWeightsHiddenOutput;
     }
 
     /**
-     * gets the weights between hidden and output layer.
-     *
-     * @return WeightsHiddenOutput
+     * Returns the weights between hidden and output layer.
      */
-
-    public double[][] getWeightsHiddenOutput(){
+    public double[][] getWeightsHiddenOutput() {
         return this.weightsHiddenOutput;
     }
 
     /**
-     * sets the biases for the output layer.
-     *
-     * @param updateBiasOutput new biases to set
+     * Returns the raw input values to the hidden layer (before activation).
+     */
+    public double[] getHiddenInput() {
+        return this.hiddenInput;
+    }
+
+    /**
+     * Sets the biases for the output layer.
      */
     public void setBiasOutput(double[] updateBiasOutput) {
         this.biasOutput = updateBiasOutput;
     }
 
     /**
-     * gets the biases for the output layer.
-     * @return biasOutput
+     * Returns the biases for the output layer.
      */
-    public double[] getBiasOutput(){
+    public double[] getBiasOutput() {
         return this.biasOutput;
     }
-    
+
     /**
-     * creates a random matrix with values between 0 and 1.
-     *
-     * @param size1 number of rows
-     * @param size2 number of columns
-     * @return generated random matrix
+     * Creates a random matrix initialized with small Gaussian values scaled by input size.
      */
     public double[][] randomMatrix(int size1, int size2) {
-        Random randm = new Random();
-        double result[][] = new double[size1][size2];
+        Random rand = new Random();
+        double[][] result = new double[size1][size2];
         for (int i = 0; i < size1; i++) {
             for (int j = 0; j < size2; j++) {
-                result[i][j] = randm.nextDouble(0.0, 1.0);
+                double scale = Math.sqrt(2.0 / size2);
+                result[i][j] = rand.nextGaussian() * scale;
             }
         }
         return result;
     }
 
     /**
-     * creates a random vector with values between 0 and 1.
-     *
-     * @param number size of the vector
-     * @return generated random vector
+     * Creates a random vector initialized with small Gaussian values scaled by size.
      */
     public double[] randomVector(int number) {
-        Random randm = new Random();
+        Random rand = new Random();
         double[] result = new double[number];
         for (int i = 0; i < number; i++) {
-            result[i] = randm.nextDouble(0.0, 1.0);
+            double scale = Math.sqrt(2.0 / number);
+            result[i] = rand.nextGaussian() * scale;
         }
         return result;
     }
 
     /**
-     * performs the forward propagation through the network.
-     *
-     * @param inputs input vector
-     * @return output vector after softmax
+     * Performs forward propagation on the input and returns the output after applying softmax.
      */
     public double[] forward(double[] inputs) {
-        
-        double[] hiddenInput = MathFunctions.add(MathFunctions.multiply(weightsInputHidden, inputs), biasHidden);
+        hiddenInput = MathFunctions.add(MathFunctions.multiply(weightsInputHidden, inputs), biasHidden);
         hiddenOutput = MathFunctions.applyReLU(hiddenInput);
         double[] finalInput = MathFunctions.add(MathFunctions.multiply(weightsHiddenOutput, hiddenOutput), biasOutput);
         return MathFunctions.softmax(finalInput);
     }
-
 }

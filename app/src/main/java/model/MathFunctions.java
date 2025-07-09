@@ -91,6 +91,46 @@ public interface MathFunctions {
         }
         return result;
     }
+    /**
+     * Applies the Leaky ReLU activation function element-wise on the input array.
+     * Leaky ReLU allows a small, non-zero gradient when the unit is not active (x < 0),
+     * which helps to prevent dying neurons during training.
+     * 
+     * f(x) = x          if x > 0
+     *        0.01 * x   otherwise (α = 0.01)
+     * 
+     * @param x input array
+     * @return output array after applying Leaky ReLU
+     */
+    public static double[] applyLeakyReLU(double[] x) {
+        double[] out = new double[x.length];
+        for (int i = 0; i < x.length; i++) {
+            out[i] = (x[i] > 0) ? x[i] : 0.01 * x[i];
+        }
+        return out;
+    }
+
+    /**
+     * Computes the derivative of the Leaky ReLU function element-wise.
+     * The derivative is 1 for positive inputs and α (0.01) for negative inputs,
+     * which helps maintain a small gradient for negative inputs.
+     * 
+     * f'(x) = 1       if x > 0
+     *         0.01    otherwise (α = 0.01)
+     * 
+     * @param x input array (usually the pre-activation values)
+     * @return array of derivatives
+     */
+    public static double[] leakyReLUDerivative(double[] x) {
+        double[] deriv = new double[x.length];
+        for (int i = 0; i < x.length; i++) {
+            deriv[i] = (x[i] > 0) ? 1.0 : 0.01;
+        }
+        return deriv;
+    }
+    public static double leakyReLUDerivative(double x) {
+        return(x > 0) ? 1.0 : 0.01;
+    }
 
     /**
      * Calculates the dot product of two vectors.
@@ -209,7 +249,7 @@ public interface MathFunctions {
      * @return Softmax probabilities
      */
     public static double[] softmax(double[] outputs) {
-        double max = Arrays.stream(outputs).max().orElse(0.0); // für Stabilität
+        double max = Arrays.stream(outputs).max().orElse(0.0);
         double sum = 0.0;
         double[] exp = new double[outputs.length];
 
@@ -225,35 +265,26 @@ public interface MathFunctions {
         return exp;
     }
 
-
     /**
-     * Normalizes a pixel value from the range 0-255 to the range 0-1.
-     *
-     * @param pixelValue Raw pixel value (0-255).
-     * @return Normalized value between 0 and 1.
+     * Calculates the cross-entropy loss between predicted probabilities and true labels.
+     * This is the preferred loss function for classification tasks with softmax output.
+     * 
+     * @param yTrue Array of true labels (one-hot encoded, e.g., [0, 0, 1, 0] for class 2)
+     * @param yPred Array of predicted probabilities (output from softmax)
+     * @return Cross-entropy loss value
+     * @throws IllegalArgumentException if arrays have different lengths
      */
-    static double normalize(double pixelValue) {
-        return pixelValue / 255.0;
-    }
-
-    /**
-     * Flattens a 2D matrix (28x28) into a 1D vector (784).
-     *
-     * @param matrix 2D double array (28x28)
-     * @return 1D double array (flattened)
-    */
-    public static double[] flatten(double[][] matrix) {
-        int rows = matrix.length;
-        int cols = matrix[0].length;
-        double[] flat = new double[rows * cols];
-
-        int index = 0;
-        for (int i = 0; i < rows; i++) {
-            for (int j = 0; j < cols; j++) {
-                flat[index++] = matrix[i][j];
-            }
+    public static double crossEntropyLoss(double[] yTrue, double[] yPred) {
+        if (yTrue.length != yPred.length) {
+            throw new IllegalArgumentException("Vectors must have the same length");
         }
-        return flat;
+        
+        double loss = 0.0;
+        for (int i = 0; i < yTrue.length; i++) {
+            // Add small epsilon (1e-15) to prevent log(0)
+            loss += -yTrue[i] * Math.log(yPred[i] + 1e-15);
+        }
+        return loss;
     }
     
 

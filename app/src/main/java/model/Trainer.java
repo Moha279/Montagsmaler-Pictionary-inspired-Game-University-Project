@@ -1,125 +1,175 @@
 package model;
 
 import java.util.*;
-
 import model.Data.*;
 
 /**
- * Trainer class for training the Neural Network using backpropagation.
+ * This class is responsible for training a feedforward neural network using backpropagation.
  */
 public class Trainer {
 
     private NeuralNetz neuralNetz;
     private double learningRate;
     private int epochs;
-
-    private double[][] inputData;
-    private double[][] targetData;
+    private List<TrainingSample> trainingSamples;
+    private List<TrainingSample> validationSamples;
+    private int batchSize;
+    private int patience;
+    private int shuffleSeed;
+    private double bestError;
 
     /**
-     * Constructs a Trainer object.
-     * 
-     * @param neuralNetz   the neural network to be trained
-     * @param learningRate the learning rate used for weight updates
-     * @param epochs       the number of training iterations
-     * @param inputData    the input training data
-     * @param targetData   the expected output training data
+     * Constructor to initialize training parameters and dataset.
      */
-    public Trainer(NeuralNetz neuralNetz, double learningRate, int epochs, double[][] inputData, double[][] targetData) {
+    public Trainer(NeuralNetz neuralNetz, double learningRate, int epochs, List<TrainingSample> trainingSamples,
+                   List<TrainingSample> validationSamples, int batchSize, int patience, int shuffleSeed) {
         this.neuralNetz = neuralNetz;
         this.learningRate = learningRate;
         this.epochs = epochs;
-        this.inputData = inputData;
-        this.targetData = targetData;
+        this.trainingSamples = trainingSamples;
+        this.validationSamples = validationSamples;
+        this.batchSize = batchSize;
+        this.patience = patience;
+        this.shuffleSeed = shuffleSeed;
+
+        this.bestError = Data.loadBestError("model\\Data\\star\\BestError.txt");
     }
 
     /**
-     * Backpropagation algorithm for updating the weights and biases of the neural network.
-     * 
-     * @param inputs          the input data vector
-     * @param optimalOutputs  the expected output vector
+     * Trains the neural network using mini-batch gradient descent and early stopping.
      */
     public void train() {
-        double bestError = Data.loadBestError("BestError");
+        int epochsWithoutImprovement = 0;
+
         for (int epoch = 0; epoch < epochs; epoch++) {
+            Collections.shuffle(trainingSamples, new Random(shuffleSeed));
 
-            for (int dataIndex = 0; dataIndex < inputData.length; dataIndex++) {
-                
-                double[] inputs = inputData[dataIndex];
-                double[] optimalOutputs = targetData[dataIndex];
+            for (int batchStart = 0; batchStart < trainingSamples.size(); batchStart += batchSize) {
+                int batchEnd = Math.min(batchStart + batchSize, trainingSamples.size());
+                List<TrainingSample> batch = trainingSamples.subList(batchStart, batchEnd);
 
-                double[] outputs = neuralNetz.forward(inputs);
-                double[] outputErrors = MathFunctions.errorVector(optimalOutputs, outputs);
-                double currentError = model.MathFunctions.meanSquaredError(optimalOutputs, outputs);
-
-                double[][] weightsHiddenOutput = neuralNetz.getWeightsHiddenOutput();
-                double[] hiddenOutput = neuralNetz.getHiddenOutput();
-                double[] biasOutput = neuralNetz.getBiasOutput();
                 double[][] weightsInputHidden = neuralNetz.getWeightsInputHidden();
+                double[][] weightsHiddenOutput = neuralNetz.getWeightsHiddenOutput();
                 double[] biasHidden = neuralNetz.getBiasHidden();
+                double[] biasOutput = neuralNetz.getBiasOutput();
 
-                if (epoch % 100 == 0) {
-                    System.out.println("Epoch: " + epoch + " Current Error: " + currentError);
-                    System.out.println("Outputs at Epoch  " + epoch + " [" + outputs[0] +", "+ outputs[1] + "]");
-                }
+                double[][] gradWeightsIH = new double[weightsInputHidden.length][weightsInputHidden[0].length];
+                double[][] gradWeightsHO = new double[weightsHiddenOutput.length][weightsHiddenOutput[0].length];
+                double[] gradBiasH = new double[biasHidden.length];
+                double[] gradBiasO = new double[biasOutput.length];
 
-                if (currentError < bestError) {
-                    bestError = currentError;
-                   
-                    Data.saveToFile(neuralNetz.getWeightsInputHidden(), "model/Data/M/eyeglasses/weightsInputHidden.txt");
-                    Data.saveToFile(neuralNetz.getWeightsHiddenOutput(), "model/Data/M/eyeglasses/weightsHiddenOutput.txt");
-                    Data.saveToFile(neuralNetz.getBiasHidden(), "model/Data/M/eyeglasses/biasHidden.txt");
-                    Data.saveToFile(neuralNetz.getBiasOutput(), "model/Data/M/eyeglasses/biasOutput.txt");
-                    Data.saveBestError(bestError,"model/Data/M/eyeglasses/BestError.txt");
+                for (TrainingSample sample : batch) {
+                    double[] inputs = sample.input;
+                    double[] targets = sample.target;
+                    double[] outputs = neuralNetz.forward(inputs);
+                    double[] outputErrors = MathFunctions.errorVector(targets, outputs);
+                    double[] hiddenOutput = neuralNetz.getHiddenOutput();
+                    double[] hiddenInput = neuralNetz.getHiddenInput();
 
-                    System.out.println("New best model saved with error: " + bestError);
-                }
-                // Calculate delta for output layer
-                double[] deltaOutputs = new double[outputs.length];
-                for (int i = 0; i < outputs.length; i++) {
-                    deltaOutputs[i] = outputErrors[i] * MathFunctions.reluDerivative(outputs[i]);
-                }
-
-                // Calculate delta for hidden layer
-                double[] deltaHidden = new double[hiddenOutput.length];
-                for (int i = 0; i < hiddenOutput.length; i++) {
-                    double sum = 0;
-                    for (int j = 0; j < deltaOutputs.length; j++) {
-                        sum += weightsHiddenOutput[j][i] * deltaOutputs[j];
+                    double[] deltaOutputs = new double[outputErrors.length];
+                    for (int i = 0; i < outputErrors.length; i++) {
+                        double out = outputs[i];
+                        double sigmoidDerivative = out * (1.0 - out);
+                        deltaOutputs[i] = outputErrors[i] * sigmoidDerivative;
                     }
-                    deltaHidden[i] = sum * MathFunctions.reluDerivative(hiddenOutput[i]);
+
+                    double[] deltaHidden = new double[hiddenOutput.length];
+                    for (int i = 0; i < hiddenOutput.length; i++) {
+                        double sum = 0;
+                        for (int j = 0; j < deltaOutputs.length; j++) {
+                            sum += weightsHiddenOutput[j][i] * deltaOutputs[j];
+                        }
+                        deltaHidden[i] = sum * MathFunctions.reluDerivative(hiddenInput[i]);
+                    }
+
+                    for (int i = 0; i < weightsInputHidden.length; i++) {
+                        for (int j = 0; j < weightsInputHidden[i].length; j++) {
+                            gradWeightsIH[i][j] += deltaHidden[i] * inputs[j];
+                        }
+                    }
+
+                    for (int i = 0; i < weightsHiddenOutput.length; i++) {
+                        for (int j = 0; j < weightsHiddenOutput[i].length; j++) {
+                            gradWeightsHO[i][j] += deltaOutputs[i] * hiddenOutput[j];
+                        }
+                    }
+
+                    for (int i = 0; i < biasOutput.length; i++) {
+                        gradBiasO[i] += deltaOutputs[i];
+                    }
+
+                    for (int i = 0; i < biasHidden.length; i++) {
+                        gradBiasH[i] += deltaHidden[i];
+                    }
                 }
 
-                // Update weights between input and hidden layer
+                double batchFactor = learningRate / batch.size();
+
                 for (int i = 0; i < weightsInputHidden.length; i++) {
-                    for (int j = 0; j < inputs.length; j++) {
-                        weightsInputHidden[i][j] -= learningRate * deltaHidden[i] * inputs[j];
+                    for (int j = 0; j < weightsInputHidden[i].length; j++) {
+                        weightsInputHidden[i][j] -= batchFactor * gradWeightsIH[i][j];
                     }
                 }
-                neuralNetz.setWeightsInputHidden(weightsInputHidden);
-
-                // Update weights between hidden and output layer
                 for (int i = 0; i < weightsHiddenOutput.length; i++) {
                     for (int j = 0; j < weightsHiddenOutput[i].length; j++) {
-                        double gradient = deltaOutputs[i] * hiddenOutput[j];
-                        weightsHiddenOutput[i][j] -= learningRate * gradient;
+                        weightsHiddenOutput[i][j] -= batchFactor * gradWeightsHO[i][j];
                     }
                 }
-                neuralNetz.setWeightsHiddenOutput(weightsHiddenOutput);
-
-                // Update biases for output layer
                 for (int i = 0; i < biasOutput.length; i++) {
-                    biasOutput[i] -= learningRate * deltaOutputs[i];
+                    biasOutput[i] -= batchFactor * gradBiasO[i];
                 }
-                neuralNetz.setBiasOutput(biasOutput);
-
-                // Update biases for hidden layer
                 for (int i = 0; i < biasHidden.length; i++) {
-                    biasHidden[i] -= learningRate * deltaHidden[i];
+                    biasHidden[i] -= batchFactor * gradBiasH[i];
                 }
+
+                neuralNetz.setWeightsInputHidden(weightsInputHidden);
+                neuralNetz.setWeightsHiddenOutput(weightsHiddenOutput);
                 neuralNetz.setBiasHidden(biasHidden);
+                neuralNetz.setBiasOutput(biasOutput);
+            }
+
+            double validationError = calculateAverageError();
+
+            if (epoch % 100 == 0 || epoch == epochs - 1) {
+                System.out.printf("Epoch: %d | Validation Error: %.8f%n", epoch, validationError);
+            }
+
+            if (validationError < bestError - 1e-4) {
+                bestError = validationError;
+                epochsWithoutImprovement = 0;
+
+                saveBestModel();
+                System.out.println("New best model saved at Epoch " + epoch + " with error: " + bestError);
+            } else {
+                epochsWithoutImprovement++;
+                if (epochsWithoutImprovement >= patience) {
+                    System.out.println("Early stopping triggered at epoch " + epoch);
+                    break;
+                }
             }
         }
     }
 
+    /**
+     * Calculates the average cross-entropy loss on the validation set.
+     */
+    private double calculateAverageError() {
+        double total = 0.0;
+        for (TrainingSample s : validationSamples) {
+            double[] out = neuralNetz.forward(s.input);
+            total += MathFunctions.crossEntropyLoss(s.target, out);
+        }
+        return total / validationSamples.size();
+    }
+
+    /**
+     * Saves the current best model to disk.
+     */
+    private void saveBestModel() {
+        Data.saveBestError(bestError, "model/Data/star/BestError.txt");
+        Data.saveToFile(neuralNetz.getWeightsInputHidden(), "model/Data/star/weightsInputHidden.txt");
+        Data.saveToFile(neuralNetz.getWeightsHiddenOutput(), "model/Data/star/weightsHiddenOutput.txt");
+        Data.saveToFile(neuralNetz.getBiasHidden(), "model/Data/star/biasHidden.txt");
+        Data.saveToFile(neuralNetz.getBiasOutput(), "model/Data/star/biasOutput.txt");
+    }
 }

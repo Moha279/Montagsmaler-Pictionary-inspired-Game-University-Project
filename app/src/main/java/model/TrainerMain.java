@@ -1,35 +1,59 @@
 package model;
+
 import java.util.*;
 
-import model.MathFunctions;
-import model.NeuralNetz;
-import model.Trainer;
 import model.Data.*;
 
-public class TrainerMain{
+/**
+ * Main class to train and test a neural network classifier.
+ */
+public class TrainerMain {
+
     public static void main(String[] args) {
-        double[][] inputs = Data.loadMatrix("model\\Data\\M\\quickdraw_project\\converted_vectors\\eyeglasses_vector_28.json");
-        double[][] outputs = inistalier(1000, 2);
-        NeuralNetz neuralNetz = new NeuralNetz(inputs[0].length,2, 2);
-        Trainer trainer = new Trainer(neuralNetz,0.1, 1000, inputs, outputs);
+        String pathTrain = "model/Data/quickdraw_project/converted_vectors_train/";
+        String pathTest = "model/Data/quickdraw_project/converted_vectors_test/";
+
+        // Load training and validation samples (binary classification: star vs. not-star)
+        List<TrainingSample> trainingSamples = Data.loadTrainingSamples(2000, pathTrain, "star_vector_14.json");
+        List<TrainingSample> validationSamples = Data.loadTrainingSamples(200, pathTest, "star_vector_14.json");
+
+        // Initialize neural network with 196 inputs, 5 hidden neurons, and 2 output classes
+        NeuralNetz neuralNetz = new NeuralNetz(196, 5, 2, "star");
+
+        // Train the model
+        Trainer trainer = new Trainer(neuralNetz, 0.0001, 3000, trainingSamples, validationSamples, 16, 300, 42);
         trainer.train();
-    }
-    public static double[][] inistalier(int size1, int size2) {
-        double result[][] = new double[size1][size2];
-        for (int i = 0; i < size1; i++) {
-            result[i][0] = 1.0;
-        }
-        return result;
-    }
-    public static double[][] randomMatrix(int size1, int size2) {
-        Random randm = new Random();
-        double result[][] = new double[size1][size2];
-        for (int i = 0; i < size1; i++) {
-            for (int j = 0; j < size2; j++) {
-                result[i][j] = randm.nextDouble(0.0, 1.0);
-            }
-        }
-        return result;
+
+        // Run basic sanity check
+        sanityCheckSamples(10, neuralNetz, validationSamples);
     }
 
+    /**
+     * Helper method to print an array nicely
+     */
+    public static void printArray(double[] a) {
+        System.out.print("[");
+        for (int i = 0; i < a.length; i++) {
+            System.out.printf("%.4f", a[i]);
+            if (i < a.length - 1) System.out.print(",  ");
+        }
+        System.out.println("]");
+    }
+
+    /**
+     * Prints out predictions and corresponding targets for a few samples
+     * to visually verify that training works correctly.
+     */
+    public static void sanityCheckSamples(int n, NeuralNetz neuralNetz, List<TrainingSample> validationSamples) {
+        System.out.println("\nSanity Check Predictions:");
+        for (int i = 0; i < n && i < validationSamples.size(); i++) {
+            TrainingSample sample = validationSamples.get(i);
+            double[] prediction = neuralNetz.forward(sample.input);
+            System.out.print("Prediction: ");
+            printArray(prediction);
+            System.out.print("Target:     ");
+            printArray(sample.target);
+            System.out.println();
+        }
+    }
 }

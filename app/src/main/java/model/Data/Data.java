@@ -4,8 +4,10 @@ import java.io.*;
 import java.util.*;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import model.*;
 
 /**
  * A utility class for handling data persistence operations including saving and loading
@@ -16,9 +18,6 @@ public class Data {
     /**
      * Saves a 2D matrix to a text file.
      * Each row of the matrix is written as a line in the file, with values separated by spaces.
-     *
-     * @param matrix the 2D double array to be saved
-     * @param filename the path of the file to save to
      */
     public static void saveToFile(double[][] matrix, String filename) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
@@ -34,11 +33,8 @@ public class Data {
     }
 
     /**
-     * Saves a vector (1D array) to a text file.
+     * Saves a 1D vector to a text file.
      * All values are written on a single line, separated by spaces.
-     *
-     * @param vector the double array to be saved
-     * @param filename the path of the file to save to
      */
     public static void saveToFile(double[] vector, String filename) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
@@ -52,78 +48,48 @@ public class Data {
     }
 
     /**
-     * Loads a matrix from a text file with specified dimensions.
-     * The file should contain values separated by whitespace.
-     *
-     * @param filename the path of the file to load from
-     * @param rows the number of rows in the matrix
-     * @param cols the number of columns in the matrix
-     * @return the loaded 2D double array, or a zero matrix if loading fails
+     * Loads a 2D matrix from a text file.
+     * Assumes values are whitespace-separated.
      */
-    public static double[][] loadMatrixFromFile(String filename, int rows, int cols) {
+    public static double[][] loadMatrixFromFile(String path, int rows, int cols) {
         double[][] matrix = new double[rows][cols];
-        try (Scanner scanner = new Scanner(new File(filename))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
             for (int i = 0; i < rows; i++) {
-                for (int j = 0; j < cols; j++) {
-                    if (scanner.hasNextDouble()) {
-                        matrix[i][j] = scanner.nextDouble();
-                    }
+                String line = br.readLine();
+                if (line == null) break;
+                String[] values = line.trim().split("\\s+");
+                for (int j = 0; j < Math.min(cols, values.length); j++) {
+                    matrix[i][j] = Double.parseDouble(values[j]);
                 }
             }
         } catch (IOException e) {
-            System.out.println("Error loading file: " + filename);
+            System.out.println("Error reading from " + path + ": " + e.getMessage());
         }
         return matrix;
     }
 
     /**
-     * Loads a vector from a text file with specified size.
-     * The file should contain values separated by whitespace on a single line.
-     *
-     * @param filename the path of the file to load from
-     * @param size the expected size of the vector
-     * @return the loaded double array, or a zero array if loading fails
+     * Loads a 1D vector from a file containing a single line of space-separated values.
      */
-    public static double[] loadVectorFromFile(String filename, int size) {
-        double[] vector = new double[size];
-        try (Scanner scanner = new Scanner(new File(filename))) {
-            for (int i = 0; i < size; i++) {
-                if (scanner.hasNextDouble()) {
-                    vector[i] = scanner.nextDouble();
+    public static double[] loadVectorFromFile(String path, int length) {
+        double[] vector = new double[length];
+        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+            String line = br.readLine();
+            if (line != null) {
+                String[] values = line.trim().split("\\s+");
+                for (int i = 0; i < Math.min(length, values.length); i++) {
+                    vector[i] = Double.parseDouble(values[i]);
                 }
             }
         } catch (IOException e) {
-            System.out.println("Error loading file: " + filename);
+            System.out.println("Error reading from " + path + ": " + e.getMessage());
         }
         return vector;
     }
 
     /**
-     * Creates a backup copy of a file.
-     *
-     * @param original the path of the source file to be backed up
-     * @param backup the path where the backup should be created
-     */
-    public static void backupFile(String original, String backup) {
-        try (InputStream in = new FileInputStream(original);
-             OutputStream out = new FileOutputStream(backup)) {
-
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = in.read(buffer)) > 0) {
-                out.write(buffer, 0, length);
-            }
-        } catch (IOException e) {
-            System.out.println("Error creating backup: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Saves the best error found so far to a file.
-     * The method overwrites any existing value in the file with the new error value.
-     *
-     * @param currentError the current error value to be saved
-     * @param filePath the path of the file where the error should be stored
+     * Saves the current best error value to a file.
+     * Overwrites the previous value if the file already exists.
      */
     public static void saveBestError(double currentError, String filePath) {
         try {
@@ -138,10 +104,7 @@ public class Data {
 
     /**
      * Loads the best error value from a file.
-     * If the file doesn't exist or is empty, returns Double.MAX_VALUE.
-     *
-     * @param filePath the path of the file containing the saved error
-     * @return the loaded error value, or Double.MAX_VALUE if no value is available
+     * If no value exists, returns Double.MAX_VALUE.
      */
     public static double loadBestError(String filePath) {
         File file = new File(filePath);
@@ -149,8 +112,14 @@ public class Data {
             return Double.MAX_VALUE;
         }
         try (Scanner scanner = new Scanner(file)) {
-            if (scanner.hasNextDouble()) {
-                return scanner.nextDouble();
+            if (scanner.hasNext()) {
+                String token = scanner.next();
+                try {
+                    return Double.parseDouble(token);
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                    return Double.MAX_VALUE;
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -159,47 +128,42 @@ public class Data {
     }
 
     /**
-     * Loads a matrix from a JSON-formatted text file.
-     * The file should contain a JSON array of arrays representing the matrix rows.
-     *
-     * @param filePath the path of the JSON file to load
-     * @return the loaded 2D double array, or null if loading fails
+     * Loads a matrix from a JSON file.
+     * Handles both nested matrices (List<List<List<Double>>>) and flat ones.
      */
     public static double[][] loadMatrix(String filePath) {
         try {
             Gson gson = new Gson();
             BufferedReader br = new BufferedReader(new FileReader(filePath));
 
-            // Versuche zuerst, eine Liste von Matrizen zu laden (3D-Liste)
             Type listOfMatricesType = new TypeToken<List<List<List<Double>>>>() {}.getType();
             List<List<List<Double>>> data = null;
             try {
                 data = gson.fromJson(br, listOfMatricesType);
             } catch (Exception e) {
-                // Falls das nicht klappt, versuchen wir die Datei neu zu lesen als einzelne Matrix
                 br.close();
                 br = new BufferedReader(new FileReader(filePath));
             }
 
             if (data != null && !data.isEmpty()) {
-                // Lade die erste Matrix aus der Liste
                 List<List<Double>> firstMatrixList = data.get(0);
                 return convertListToMatrix(firstMatrixList);
             } else {
-                // Wenn nicht 3D-Array, dann 2D-Array laden
                 Type matrixType = new TypeToken<List<List<Double>>>() {}.getType();
                 List<List<Double>> matrixList = gson.fromJson(br, matrixType);
                 return convertListToMatrix(matrixList);
             }
 
         } catch (IOException e) {
-            System.out.println("Fehler beim Laden der Datei: " + filePath);
+            System.out.println("Failed to load file: " + filePath);
             e.printStackTrace();
             return null;
         }
     }
 
-
+    /**
+     * Converts a list of lists into a 2D matrix.
+     */
     private static double[][] convertListToMatrix(List<List<Double>> list) {
         int rows = list.size();
         int cols = list.get(0).size();
@@ -214,6 +178,99 @@ public class Data {
         return matrix;
     }
 
+    /**
+     * Loads a list of vectors from a JSON file.
+     * Used to load input features from converted QuickDraw samples.
+     */
+    public static List<double[]> loadVectorsFromJson(String filePath) {
+        List<double[]> vectors = new ArrayList<>();
+        try {
+            Gson gson = new Gson();
+            BufferedReader br = new BufferedReader(new FileReader(filePath));
 
+            Type listType = new TypeToken<List<List<Double>>>() {}.getType();
+            List<List<Double>> rawVectors = gson.fromJson(br, listType);
 
+            for (List<Double> rawVector : rawVectors) {
+                double[] vector = new double[rawVector.size()];
+                for (int i = 0; i < rawVector.size(); i++) {
+                    vector[i] = rawVector.get(i);
+                }
+                vectors.add(vector);
+            }
+
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return vectors;
+    }
+
+    /**
+     * Loads training data in binary classification format.
+     * 40% of the samples come from the positive class, 60% from others.
+     *
+     * @param totalSamples total number of training examples to return
+     * @param pathString base path to the JSON vector files
+     * @param positiveCategory the filename of the category to label as positive
+     * @return a shuffled list of training samples with balanced positive/negative distribution
+     */
+    public static List<TrainingSample> loadTrainingSamples(int totalSamples, String pathString, String positiveCategory) {
+        String[] categories = {
+            "apple_vector_14.json",
+            "candle_vector_14.json",
+            "fork_vector_14.json",
+            "eyeglasses_vector_14.json",
+            "star_vector_14.json"
+        };
+
+        Random random = new Random();
+        int numCategories = categories.length;
+
+        int posCount = (int) (0.4 * totalSamples);
+        int negTotal = totalSamples - posCount;
+        int negPerCat = negTotal / (numCategories - 1);
+        int negRemainder = negTotal % (numCategories - 1);
+
+        Map<String, List<double[]>> dataMap = new HashMap<>();
+        for (String catFile : categories) {
+            String fullPath = pathString + catFile;
+            List<double[]> vecs = Data.loadVectorsFromJson(fullPath);
+            if (vecs == null || vecs.isEmpty()) {
+                throw new RuntimeException("Could not load data from: " + catFile);
+            }
+            dataMap.put(catFile, vecs);
+        }
+
+        List<TrainingSample> samples = new ArrayList<>(totalSamples);
+
+        // Add positive samples
+        List<double[]> posVecs = dataMap.get(positiveCategory);
+        for (int i = 0; i < posCount; i++) {
+            double[] input = posVecs.get(random.nextInt(posVecs.size()));
+            double[] output = new double[] {1.0, 0.0};
+            samples.add(new TrainingSample(input, output));
+        }
+
+        // Add negative samples
+        for (String catFile : categories) {
+            if (catFile.equals(positiveCategory)) continue;
+
+            int count = negPerCat;
+            if (negRemainder > 0) {
+                count++;
+                negRemainder--;
+            }
+
+            List<double[]> vecs = dataMap.get(catFile);
+            for (int i = 0; i < count; i++) {
+                double[] input = vecs.get(random.nextInt(vecs.size()));
+                double[] output = new double[] {0.0, 1.0};
+                samples.add(new TrainingSample(input, output));
+            }
+        }
+
+        Collections.shuffle(samples, random);
+        return samples;
+    }
 }
