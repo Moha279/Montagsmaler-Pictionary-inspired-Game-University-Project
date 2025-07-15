@@ -51,7 +51,6 @@ java -jar montagsmaler-fat.jar
 ## Folder Structure
 ‘‘‘
 Abgabe/
-<<<<<<< HEAD
   │───montagsmaler-fat.jar
   │───Montagsmaler.pptx
   │───README.md
@@ -73,19 +72,6 @@ Abgabe/
   │
   └───view
   
-=======
-├── montagsmaler-fat.jar # The runnable application
-├── start.bat # Windows helper script
-├── Data/ # Required data for the AI
-│ ├── apple/
-│ ├── candle/
-│ ├── eyeglasses/
-│ ├── fork/
-│ └── star/
-└── README.md
-‘‘‘
-
->>>>>>> 2218ddccb4cd71cbfc6d557348e90ba40991dc61
 ---
 
 ## Data
