@@ -30,7 +30,7 @@ A JavaFX project where users can draw an object, and a neural network tries to r
 
 ## Requirements
 
-- **Java 17** or newer ([Download](https://adoptium.net/))
+- **Java 17** or newer
 - No additional libraries required
 
 ---
@@ -39,7 +39,7 @@ A JavaFX project where users can draw an object, and a neural network tries to r
 
 1. Clone or download the repository.
 2. Make sure `montagsmaler-fat.jar` and the `Data` folder are in the same directory.
-3. **Windows:** Double-click `start.bat` to launch the app.  
+3. **Windows:** Double-click `montagsmaler-fat.jar` to launch the app.  
    **Any OS:** Or run in the terminal:
 
 java -jar montagsmaler-fat.jar
@@ -49,7 +49,7 @@ java -jar montagsmaler-fat.jar
 ---
 
 ## Folder Structure
-‘‘‘
+
 Abgabe/
   │───montagsmaler-fat.jar
   │───Montagsmaler.pptx
@@ -84,7 +84,7 @@ Abgabe/
 ## Troubleshooting
 
 - **App won't start:**  
-  Make sure you have Java 17+ installed. Try running via terminal (`java -jar ...`).
+  Make sure you have Java 17+ installed. Try running via terminal (`java -jar montagsmaler-fat.jar`).
 - **"Data not found" error:**  
   Ensure the `Data` folder is in the same directory as the JAR file.
 
