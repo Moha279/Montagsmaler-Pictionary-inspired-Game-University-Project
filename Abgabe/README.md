@@ -49,7 +49,7 @@ java -jar montagsmaler-fat.jar
 ---
 
 ## Folder Structure
-
+‘‘‘
 Abgabe/
 ├── montagsmaler-fat.jar # The runnable application
 ├── start.bat # Windows helper script
@@ -60,7 +60,7 @@ Abgabe/
 │ ├── fork/
 │ └── star/
 └── README.md
-
+‘‘‘
 
 ---
 
