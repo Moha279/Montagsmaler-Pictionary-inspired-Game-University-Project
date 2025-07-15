@@ -26,5 +26,5 @@ Thumbs.db
 
 # -------- Sonstiges --------
 *.class
-*.jar
+# *.jar
 
